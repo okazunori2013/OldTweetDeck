@@ -2,7 +2,7 @@
     let html = await fetch(chrome.runtime.getURL('/files/index.html')).then(r => r.text());
     document.documentElement.innerHTML = html;
 
-    let [interception_js, vendor_js, bundle_js, bundle_css] =
+    let [interception_js, vendor_js, bundle_js, bundle_css ,configuration_json] =
         await Promise.allSettled([
             fetch(chrome.runtime.getURL("/src/interception.js")).then((r) =>
                 r.text(),
@@ -14,6 +14,9 @@
                 r.text(),
             ),
             fetch(chrome.runtime.getURL("/files/bundle.css")).then((r) =>
+                r.text(),
+            ),
+            fetch(chrome.runtime.getURL("/files/configuration.json")).then((r) =>
                 r.text(),
             ),
         ]);
@@ -83,6 +86,10 @@
     let bundle_css_style = document.createElement("style");
     bundle_css_style.innerHTML = bundle_css.value;
     document.head.appendChild(bundle_css_style);
+
+    let configuration_json_script = document.createElement("script");
+    configuration_json_script.innerHTML = `window.configuration = ${configuration_json.value}`;
+    document.head.appendChild(configuration_json_script);
 
     let int = setTimeout(function() {
         let badBody = document.querySelector('body:not(#injected-body)');
